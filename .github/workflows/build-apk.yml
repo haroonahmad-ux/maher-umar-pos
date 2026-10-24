@@ -1,4 +1,6 @@
+
 name: Build Android APK
+
 on:
   workflow_dispatch:
   push:
@@ -11,13 +13,17 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
+
       - name: Install build dependencies
         run: |
           sudo apt-get update
@@ -31,11 +37,28 @@ jobs:
           python3 -m pip install --user --upgrade pip setuptools wheel
           python3 -m pip install --user buildozer cython==0.29.36
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
       - name: Build debug APK
-        run: buildozer android debug
+        run: |
+          set -o pipefail
+          buildozer -v android debug 2>&1 | tee android-build.log
+
       - name: Upload APK artifact
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: maher-umar-pos-debug-apk
           path: bin/*.apk
           if-no-files-found: error
+          retention-days: 7
+
+      - name: Upload build diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maher-umar-pos-build-diagnostics
+          path: |
+            android-build.log
+            .buildozer/android/platform/build-*/dists/**/build.log
+          if-no-files-found: warn
+          retention-days: 7
