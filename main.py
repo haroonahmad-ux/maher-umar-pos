@@ -283,11 +283,21 @@ KV = r"""
 def popup(message):
     Popup(title="Maher Umar POS", content=Label(text=message), size_hint=(0.88, 0.35)).open()
 
+
 class Store:
     def __init__(self, path):
-        self.conn = sqlite3.connect(path)
+        db_path = (
+            path
+            if os.path.isabs(path)
+            else os.path.join(
+                App.get_running_app().user_data_dir,
+                path
+            )
+        )
+        self.conn = sqlite3.connect(db_path)
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys=ON")
+
         self.conn.executescript("""
         CREATE TABLE IF NOT EXISTS products(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -298,6 +308,7 @@ class Store:
             stock INTEGER NOT NULL CHECK(stock >= 0),
             created_at TEXT NOT NULL
         );
+
         CREATE TABLE IF NOT EXISTS sales(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             customer_name TEXT,
@@ -307,6 +318,7 @@ class Store:
             balance REAL NOT NULL CHECK(balance >= 0),
             sale_date TEXT NOT NULL
         );
+
         CREATE TABLE IF NOT EXISTS sale_items(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             sale_id INTEGER NOT NULL REFERENCES sales(id),
@@ -315,6 +327,7 @@ class Store:
             price REAL NOT NULL CHECK(price >= 0),
             purchase_price REAL NOT NULL CHECK(purchase_price >= 0)
         );
+
         CREATE TABLE IF NOT EXISTS expenses(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
