@@ -285,7 +285,12 @@ def popup(message):
 
 class Store:
     def __init__(self, path):
-        self.conn = sqlite3.connect(path)
+                import os
+        from kivy.app import App
+        
+        db_path = path if os.path.isabs(path) else os.path.join(App.get_running_app().user_data_dir, path)
+        self.conn = sqlite3.connect(db_path)
+
         self.conn.row_factory = sqlite3.Row
         self.conn.execute("PRAGMA foreign_keys=ON")
         self.conn.executescript("""
