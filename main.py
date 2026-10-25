@@ -6,6 +6,9 @@ Supabase cloud sync is intentionally not enabled until auth/session handling is 
 import os
 import sqlite3
 from datetime import datetime
+import sys
+import traceback
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.metrics import dp
@@ -474,4 +477,33 @@ class MaherUmarPOSApp(App):
         if hasattr(self, "store"): self.store.conn.close()
 
 if __name__ == "__main__":
-    MaherUmarPOSApp().run()
+    try:
+        MaherUmarPOSApp().run()
+
+    except Exception:
+        error_text = traceback.format_exc()
+        app = App.get_running_app()
+
+        try:
+            if app and app.user_data_dir:
+                log_dir = app.user_data_dir
+            else:
+                log_dir = os.path.dirname(
+                    os.path.abspath(__file__)
+                )
+
+            log_path = os.path.join(
+                log_dir, "crash_log.txt"
+            )
+
+            with open(log_path, "a", encoding="utf-8") as log:
+                log.write(
+                    f"\n\n--- CRASH: {datetime.now()} ---\n"
+                )
+                log.write(error_text)
+
+        except Exception:
+            print("Could not save crash log.")
+
+        print(error_text, file=sys.stderr)
+        raise
