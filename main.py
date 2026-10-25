@@ -288,7 +288,7 @@ def popup(message):
 
 class Store:
     def __init__(self, path):
-                import os
+        import os
         from kivy.app import App
         
         db_path = path if os.path.isabs(path) else os.path.join(App.get_running_app().user_data_dir, path)
