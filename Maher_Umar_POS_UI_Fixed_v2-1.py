@@ -1059,6 +1059,7 @@ if __name__ == "__main__":
         MaherUmarPOSApp().run()
     except Exception:
         error_text = traceback.format_exc()
+        
         try:
             app = App.get_running_app()
             log_dir = app.user_data_dir if app and app.user_data_dir else os.path.dirname(os.path.abspath(__file__))
