@@ -5,10 +5,12 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "main.py"
-      - "buildozer.spec"
-      - "requirements.txt"
-      - ".github/workflows/build-apk.yml"
+    - "main.py"
+    - "Maher_Umar_POS_UI_Fixed_v2-1.py"
+    - "buildozer.spec"
+    - "requirements.txt"
+    - ".github/workflows/build-apk.yml"
+
 
 jobs:
   build:
