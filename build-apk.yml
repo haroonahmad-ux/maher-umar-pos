@@ -5,11 +5,10 @@ on:
   push:
     paths:
       - "main.py"
-      - "Maher_Umar_POS_UI_Fixed_v2-1.py"
       - "buildozer.spec"
       - "requirements.txt"
       - ".github/workflows/build-apk.yml"
-
+      - "Maher_Umar_POS_UI_Fixed_v2-1.py"
 jobs:
   build:
     runs-on: ubuntu-22.04
