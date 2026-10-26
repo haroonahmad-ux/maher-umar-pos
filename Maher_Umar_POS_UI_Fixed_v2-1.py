@@ -207,7 +207,7 @@ KV = r'''
 <ProductsScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -221,7 +221,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'Products & Inventory'
         HintText:
@@ -285,7 +285,7 @@ KV = r'''
 <SaleScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -299,7 +299,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'New Sale / Checkout'
         HintText:
@@ -385,7 +385,7 @@ KV = r'''
 <ExpensesScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -399,7 +399,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'Expenses / Kharcha Book'
         HintText:
@@ -454,7 +454,7 @@ KV = r'''
 <ReportsScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -468,7 +468,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'Reports & Gross Profit'
         ScrollView:
@@ -492,7 +492,7 @@ KV = r'''
 <HistoryScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -506,7 +506,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'Sales History'
         ScrollView:
@@ -527,7 +527,7 @@ KV = r'''
 <UdhaarScreen>:
     BoxLayout:
         orientation: 'vertical'
-        padding: [dp(13), dp(13), dp(13), dp(38)]
+        padding: [dp(13), dp(13), dp(13), dp(76)]
         spacing: dp(8)
         canvas.before:
             Color:
@@ -541,7 +541,7 @@ KV = r'''
             spacing: dp(9)
             BackArrowButton:
                 text: '←'
-                on_release: app.go('home')
+                on_release: app.back()
             PageHeading:
                 text: 'Udhaar Book / Outstanding'
         ScrollView:
@@ -586,15 +586,15 @@ def detect_category(name, category=""):
 
 def show_message(message, title="Maher Umar POS"):
     """High-contrast, readable confirmation/error dialog for phone screens."""
-    body = BoxLayout(orientation="vertical", padding=dp(18), spacing=dp(14))
+    body = BoxLayout(orientation="vertical", padding=dp(20), spacing=dp(16))
     label = Label(
-        text=str(message), color=(0.08, 0.12, 0.14, 1),
-        halign="left", valign="middle", font_size="16sp", size_hint_y=None,
+        text=str(message), color=(0.025, 0.035, 0.045, 1),
+        halign="left", valign="middle", font_size="17sp", bold=True, size_hint_y=None,
     )
     def update_label_size(instance, width):
         instance.text_size = (max(1, width - dp(4)), None)
         instance.texture_update()
-        instance.height = max(dp(72), instance.texture_size[1] + dp(16))
+        instance.height = max(dp(82), instance.texture_size[1] + dp(20))
     label.bind(width=update_label_size)
     body.add_widget(label)
     close = Button(
@@ -605,7 +605,7 @@ def show_message(message, title="Maher Umar POS"):
     body.add_widget(close)
     dialog = Popup(
         title=title, content=body, size_hint=(0.92, None),
-        height=max(dp(220), min(dp(390), label.height + dp(125))),
+        height=max(dp(240), min(dp(440), label.height + dp(140))),
         auto_dismiss=False, background_color=(1, 1, 1, 1),
         title_color=(0.08, 0.16, 0.18, 1),
         separator_color=(0.08, 0.52, 0.30, 1), title_size="18sp",
@@ -976,10 +976,29 @@ class MaherUmarPOSApp(App):
         self.store = Store(os.path.join(self.user_data_dir, DB_NAME))
         Builder.load_string(KV)
         manager = ScreenManager()
+        self._screen_history = []
         manager.add_widget(MainScreen(name="home")); manager.add_widget(ProductsScreen(name="products")); manager.add_widget(SaleScreen(name="sale")); manager.add_widget(ExpensesScreen(name="expenses")); manager.add_widget(ReportsScreen(name="reports")); manager.add_widget(HistoryScreen(name="history")); manager.add_widget(UdhaarScreen(name="udhaar"))
         return manager
     def go(self, screen_name):
-        self.root.current = screen_name
+        if not self.root or screen_name not in self.root.screen_names:
+            return
+        current = self.root.current
+        if current != screen_name:
+            if not hasattr(self, "_screen_history"):
+                self._screen_history = []
+            self._screen_history.append(current)
+            self.root.current = screen_name
+
+    def back(self):
+        """Return to the previous visited screen, with dashboard as fallback."""
+        if not self.root:
+            return
+        while getattr(self, "_screen_history", []):
+            previous = self._screen_history.pop()
+            if previous in self.root.screen_names and previous != self.root.current:
+                self.root.current = previous
+                return
+        self.root.current = "home"
     def refresh_home(self):
         if self.root and "home" in self.root.screen_names: self.root.get_screen("home").refresh_summary()
     def backup_database(self):
