@@ -5,7 +5,7 @@ package.domain = com.maherumar
 source.dir = .
 source.include_exts = py,kv,png,jpg,jpeg,atlas,txt,md,sql
 version = 0.1.0
-requirements = python3,kivy
+requirements = python3==3.12.10,hostpython3==3.12.10,kivy
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET
