@@ -585,12 +585,25 @@ def detect_category(name, category=""):
 
 
 def show_message(message, title="Maher Umar POS"):
-    """High-contrast, readable confirmation/error dialog for phone screens."""
-    body = BoxLayout(orientation="vertical", padding=dp(20), spacing=dp(16))
-    label = Label(
-        text=str(message), color=(0.025, 0.035, 0.045, 1),
-        halign="left", valign="middle", font_size="17sp", bold=True, size_hint_y=None,
+    content = Label(
+        text=message,
+        color=(0.12, 0.18, 0.20, 1),  # Dark text color taaki light background par saaf dikhe
+        font_size="16sp",
+        halign="center",
+        valign="middle"
     )
+    content.bind(size=content.setter('text_size'))
+    
+    popup = Popup(
+        title=title,
+        content=content,
+        size_hint=(0.88, 0.30),
+        background_color=(0.98, 0.99, 1, 1),
+        title_color=(0.08, 0.20, 0.25, 1),
+        separator_color=(0.08, 0.52, 0.30, 1)
+    )
+    popup.open()
+
     def update_label_size(instance, width):
         instance.text_size = (max(1, width - dp(4)), None)
         instance.texture_update()
