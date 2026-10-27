@@ -8,6 +8,16 @@ import sys
 import traceback
 from datetime import datetime
 
+try:
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.utils import ImageReader
+    REPORTLAB_AVAILABLE = True
+except ImportError:
+    REPORTLAB_AVAILABLE = False
+    
+
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.metrics import dp
