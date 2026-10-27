@@ -31,48 +31,74 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y \\
-            build-essential git zip unzip \\
-            python3-pip python3-venv \\
-            autoconf libtool pkg-config \\
-            zlib1g-dev libncurses5-dev libncursesw5-dev \\
-            libtinfo6 cmake libffi-dev libssl-dev \\
+          sudo apt-get install -y \
+            build-essential git zip unzip \
+            python3-pip python3-venv \
+            autoconf libtool pkg-config \
+            zlib1g-dev libncurses5-dev libncursesw5-dev \
+            libtinfo6 cmake libffi-dev libssl-dev \
             automake autopoint gettext
 
-      - name: Install pinned Android SDK packages
+      - name: Install Android SDK packages
         shell: bash
         run: |
           set -euo pipefail
-          SDKMANAGER="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" -type f -name sdkmanager 2>/dev/null | head -n 1)"
+
+          SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
+
+          SDKMANAGER="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" \
+            -type f -name sdkmanager 2>/dev/null | head -n 1 || true)"
+
           if [[ -z "$SDKMANAGER" ]]; then
-            SDKMANAGER="$(command -v sdkmanager || true)"
-          fi
-          if [[ -z "$SDKMANAGER" ]]; then
-            echo "::error::Android sdkmanager was not found on the runner."
+            echo "::error::Android sdkmanager not found."
             exit 1
           fi
 
-          BUILD_SDK="$HOME/.buildozer/android/platform/android-sdk"
-          mkdir -p "$BUILD_SDK"
-          yes | "$SDKMANAGER" --sdk_root="$BUILD_SDK" --licenses >/dev/null || true
-          yes | "$SDKMANAGER" --sdk_root="$BUILD_SDK" \\
-            "platform-tools" \\
-            "platforms;android-33" \\
+          mkdir -p "$SDK_ROOT"
+
+          yes | "$SDKMANAGER" \
+            --sdk_root="$SDK_ROOT" \
+            --licenses >/dev/null || true
+
+          "$SDKMANAGER" --sdk_root="$SDK_ROOT" \
+            "platform-tools" \
+            "platforms;android-33" \
             "build-tools;34.0.0"
 
-          test -x "$BUILD_SDK/build-tools/34.0.0/aidl"
-          "$BUILD_SDK/build-tools/34.0.0/aidl" --version || true
+          test -x "$SDK_ROOT/build-tools/34.0.0/aidl"
+
+          echo "Android SDK packages verified."
+
+      - name: Configure Buildozer SDK updates
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if ! grep -q '^android.skip_update[[:space:]]*=' buildozer.spec; then
+            sed -i \
+              '/^android.accept_sdk_license[[:space:]]*=/a android.skip_update = True' \
+              buildozer.spec
+          fi
+
+          grep -E \
+            '^(android.api|android.minapi|android.ndk|android.skip_update|p4a.branch)[[:space:]]*=' \
+            buildozer.spec
 
       - name: Install Python build tools
         run: |
           python3 -m pip install --user --upgrade pip setuptools wheel
-          python3 -m pip install --user buildozer cython==0.29.36
+
+          python3 -m pip install --user \
+            buildozer \
+            cython==0.29.36
+
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: Build debug APK
         shell: bash
         run: |
           set -o pipefail
+
           buildozer -v android debug 2>&1 | tee android-build.log
 
       - name: Upload APK artifact
