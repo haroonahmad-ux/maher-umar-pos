@@ -14,7 +14,7 @@ android.minapi = 26
 android.ndk = 25b
 android.archs = arm64-v8a
 android.accept_sdk_license = True
-#p4a.branch = release-2024.1.2
+p4a.branch = release-2024.1.2
 # Cloud sync is not enabled in this starter. Add Supabase client only after auth is implemented.
 [buildozer]
 log_level = 2
