@@ -34,8 +34,9 @@ jobs:
             libtinfo6 cmake libffi-dev libssl-dev \
             automake autopoint gettext
           python3 -m pip install --user --upgrade pip setuptools wheel
-          python3 -m pip install --user buildozer cython==0.29.36
+          python3 -m pip install --user buildozer cython==0.29.33
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
 
       - name: Build debug APK
         run: |
