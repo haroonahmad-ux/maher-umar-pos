@@ -1028,7 +1028,11 @@ class MaherUmarPOSApp(App):
         try:
             path = self.store.backup(); show_message(f"Database backup created successfully:\n{path}\n\nKeep a copy outside the app as well.", "Backup complete")
         except Exception as exc: show_message(f"Backup failed: {exc}", "Backup error")
-    def generate_invoice(self, sale_id, customer, phone, items, subtotal, discount, net, paid, due, change=0):
+    def generate_pdf_invoice(customer, customer_phone, invoice_no, cart, subtotal, discount, final_payable, payment, balance, status):
+    if not REPORTLAB_AVAILABLE:
+        print("[WARNING] Reportlab available nahi hai, PDF invoice generate nahi ho sakegi.")
+        return None
+    
         """Write a lightweight one-page PDF using built-in PDF syntax (no extra package)."""
         folder = os.path.join(self.user_data_dir, "Invoices")
         os.makedirs(folder, exist_ok=True)
