@@ -5,7 +5,7 @@ package.domain = com.maherumar
 source.dir = .
 source.include_exts = py,kv,png,jpg,jpeg,atlas,txt,md,sql
 version = 0.1.0
-requirements = python3==3.12.7,hostpython3==3.12.7,kivy
+requirements = python3,kivy
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET
@@ -14,7 +14,7 @@ android.minapi = 26
 android.ndk = 25b
 android.archs = arm64-v8a
 android.accept_sdk_license = True
-p4a.branch = release-2024.1.2
+#p4a.branch = release-2024.1.2
 # Cloud sync is not enabled in this starter. Add Supabase client only after auth is implemented.
 [buildozer]
 log_level = 2
