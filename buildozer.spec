@@ -9,13 +9,12 @@ requirements = python3,kivy
 orientation = portrait
 fullscreen = 0
 android.permissions = INTERNET
-android.api = 33
+android.api = 31
 android.minapi = 21
 android.ndk = 25b
 android.archs = arm64-v8a
 android.accept_sdk_license = True
-p4a.branch = develop
-# Cloud sync is not enabled in this starter. Add Supabase client only after auth is implemented.
+
 [buildozer]
 log_level = 2
 warn_on_root = 1
