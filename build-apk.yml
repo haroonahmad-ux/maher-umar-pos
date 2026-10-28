@@ -20,7 +20,6 @@ jobs:
 
     - name: Install System Dependencies
       run: |
-        sudo dpkg --add-architecture i386
         sudo apt-get update
         sudo apt-get install -y \
             python3-pip \
@@ -34,10 +33,7 @@ jobs:
             autoconf \
             libtool \
             pkg-config \
-            unzip \
-            libncurses5:i386 \
-            libstdc++6:i386 \
-            libz1:i386
+            unzip
 
     - name: Upgrade Pip and Build Tools
       run: |
