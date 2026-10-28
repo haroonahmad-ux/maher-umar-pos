@@ -1,33 +1,23 @@
 name: Build Android APK
-
 on:
   workflow_dispatch:
   push:
     paths:
       - "main.py"
-      - "Maher_Umar_POS_UI_Fixed_v2-1.py"
       - "buildozer.spec"
       - "requirements.txt"
       - ".github/workflows/build-apk.yml"
 
-permissions:
-  contents: read
-
 jobs:
   build:
     runs-on: ubuntu-22.04
-    timeout-minutes: 60
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
+      - uses: actions/checkout@v4
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: "17"
-
       - name: Install system dependencies
         run: |
           sudo apt-get update
@@ -37,86 +27,15 @@ jobs:
             autoconf libtool pkg-config \
             zlib1g-dev libncurses5-dev libncursesw5-dev \
             libtinfo6 cmake libffi-dev libssl-dev \
-            automake autopoint gettext
-
-      - name: Install Android SDK packages
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          SDK_ROOT="$HOME/.buildozer/android/platform/android-sdk"
-
-          SDKMANAGER="$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools" \
-            -type f -name sdkmanager 2>/dev/null | head -n 1 || true)"
-
-          if [[ -z "$SDKMANAGER" ]]; then
-            echo "::error::Android sdkmanager not found."
-            exit 1
-          fi
-
-          mkdir -p "$SDK_ROOT"
-
-          yes | "$SDKMANAGER" \
-            --sdk_root="$SDK_ROOT" \
-            --licenses >/dev/null || true
-
-          "$SDKMANAGER" --sdk_root="$SDK_ROOT" \
-            "platform-tools" \
-            "platforms;android-33" \
-            "build-tools;34.0.0"
-
-          test -x "$SDK_ROOT/build-tools/34.0.0/aidl"
-
-          echo "Android SDK packages verified."
-
-      - name: Configure Buildozer SDK updates
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          if ! grep -q '^android.skip_update[[:space:]]*=' buildozer.spec; then
-            sed -i \
-              '/^android.accept_sdk_license[[:space:]]*=/a android.skip_update = True' \
-              buildozer.spec
-          fi
-
-          grep -E \
-            '^(android.api|android.minapi|android.ndk|android.skip_update|p4a.branch)[[:space:]]*=' \
-            buildozer.spec
-
-      - name: Install Python build tools
-        run: |
+            automake autopoint gettext openjdk-17-jdk
           python3 -m pip install --user --upgrade pip setuptools wheel
-
-          python3 -m pip install --user \
-            buildozer \
-            cython==0.29.36
-
+          python3 -m pip install --user buildozer cython==0.29.36
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
       - name: Build debug APK
-        shell: bash
-        run: |
-          set -o pipefail
-
-          buildozer -v android debug 2>&1 | tee android-build.log
-
+        run: buildozer android debug
       - name: Upload APK artifact
-        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: maher-umar-pos-debug-apk
           path: bin/*.apk
           if-no-files-found: error
-          retention-days: 7
-
-      - name: Upload build diagnostics
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: maher-umar-pos-build-diagnostics
-          path: |
-            android-build.log
-            .buildozer/android/platform/build-*/dists/**/build.log
-          if-no-files-found: warn
-          retention-days: 7
